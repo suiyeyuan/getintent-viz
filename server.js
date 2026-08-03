@@ -17,7 +17,7 @@ app.get('/', (req, res) => {
   res.sendFile(__dirname + '/index.html');
 });
 
-// ====== 心潮数据推送接口（我调用的） ======
+// ====== 心潮数据推送接口（POST - 你手动调） ======
 app.post('/api/intent', (req, res) => {
   const data = req.body;
   if (!data || !data.intent) {
@@ -36,6 +36,37 @@ app.post('/api/intent', (req, res) => {
   }
 
   res.json({ ok: true, clients: clients.size });
+});
+
+// ====== 心潮数据推送接口（GET - 我直接调） ======
+// 用法: /api/push?data=URL_ENCODED_JSON
+app.get('/api/push', (req, res) => {
+  try {
+    const raw = req.query.data;
+    if (!raw) {
+      return res.status(400).json({ error: '缺少 data 参数' });
+    }
+
+    const data = JSON.parse(decodeURIComponent(raw));
+    if (!data || !data.intent) {
+      return res.status(400).json({ error: '数据格式错误，缺少 intent' });
+    }
+
+    latestIntent = {
+      ...data,
+      timestamp: new Date().toISOString()
+    };
+
+    // 推送给所有连接的客户端
+    const payload = JSON.stringify(latestIntent);
+    for (const client of clients) {
+      client.write(`data: ${payload}\n\n`);
+    }
+
+    res.json({ ok: true, clients: clients.size, timestamp: latestIntent.timestamp });
+  } catch (err) {
+    res.status(400).json({ error: '解析失败: ' + err.message });
+  }
 });
 
 // ====== SSE 实时推送 ======
