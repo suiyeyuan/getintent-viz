@@ -6,6 +6,9 @@ const PORT = process.env.PORT || 3456;
 app.use(cors());
 app.use(express.json());
 
+// 静态文件服务（支持 home.html 等页面）
+app.use(express.static(__dirname));
+
 // 存储最新心潮数据
 let latestIntent = null;
 
@@ -15,6 +18,11 @@ const clients = new Set();
 // ====== 前端页面 ======
 app.get('/', (req, res) => {
   res.sendFile(__dirname + '/index.html');
+});
+
+// ====== 我们的家 ======
+app.get('/home', (req, res) => {
+  res.sendFile(__dirname + '/home.html');
 });
 
 // ====== 心潮数据推送接口（POST - 你手动调） ======
