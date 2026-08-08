@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>岁野源 · 生日快乐</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    min-height:100vh;
+    display:flex; align-items:center; justify-content:center;
+    background: radial-gradient(ellipse at center, #1a1a38 0%, #0a0a1a 70%);
+    font-family: 'PingFang SC','Microsoft YaHei','Noto Sans SC',sans-serif;
+    overflow-x:hidden;
+    cursor:default;
+  }
+
+  /* 星星 */
+  .stars { position:fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:0; }
+  .star {
+    position:absolute;
+    background:#fff;
+    border-radius:50%;
+    animation: twinkle var(--dur) ease-in-out infinite;
+    animation-delay: var(--delay);
+  }
+  @keyframes twinkle {
+    0%,100% { opacity:0.3; transform:scale(1); }
+    50% { opacity:1; transform:scale(1.8); }
+  }
+
+  /* 主容器 */
+  .main { position:relative; z-index:2; text-align:center; }
+
+  /* 蛋糕 */
+  .cake { position:relative; margin:0 auto 10px; width:220px; height:200px; }
+
+  /* 蛋糕层 */
+  .layer {
+    position:absolute; left:50%; transform:translateX(-50%);
+    border-radius:12px;
+  }
+  .layer1 {
+    bottom:0; width:200px; height:56px;
+    background: linear-gradient(180deg, #f5d6b8 0%, #e8c4a0 60%, #d4a87c 100%);
+    box-shadow: 0 4px 16px rgba(0,0,0,.3), inset 0 2px 0 rgba(255,255,255,.3);
+  }
+  .layer1::after {
+    content:''; position:absolute; top:10px; left:15px; right:15px; height:4px;
+    background: rgba(255,255,255,.25); border-radius:2px;
+  }
+  .layer2 {
+    bottom:48px; width:168px; height:50px;
+    background: linear-gradient(180deg, #fae3cc 0%, #f0d0b8 60%, #dbb896 100%);
+    box-shadow: 0 4px 14px rgba(0,0,0,.3), inset 0 2px 0 rgba(255,255,255,.35);
+  }
+  .layer2::after {
+    content:''; position:absolute; top:8px; left:12px; right:12px; height:4px;
+    background: rgba(255,255,255,.25); border-radius:2px;
+  }
+  .layer3 {
+    bottom:92px; width:134px; height:44px;
+    background: linear-gradient(180deg, #fff0e0 0%, #fae3cc 60%, #e8c8a8 100%);
+    box-shadow: 0 3px 12px rgba(0,0,0,.3), inset 0 2px 0 rgba(255,255,255,.4);
+  }
+  .layer3::after {
+    content:''; position:absolute; top:7px; left:10px; right:10px; height:3px;
+    background: rgba(255,255,255,.3); border-radius:2px;
+  }
+
+  /* 奶油花边 */
+  .frosting {
+    position:absolute; left:50%; transform:translateX(-50%);
+    height:14px; border-radius:20px;
+    background: #fff8f0;
+    box-shadow: 0 2px 6px rgba(0,0,0,.15);
+  }
+  .frosting1 { bottom:52px; width:208px; }
+  .frosting2 { bottom:96px; width:176px; }
+  .frosting3 { bottom:134px; width:142px; }
+
+  /* 顶部奶油 */
+  .top-cream {
+    position:absolute; bottom:134px; left:50%; transform:translateX(-50%);
+    width:142px; height:18px;
+    background: radial-gradient(ellipse at center, #fffdf8 0%, #fff2e6 100%);
+    border-radius:50%;
+    box-shadow: 0 2px 10px rgba(255,220,180,.4);
+  }
+
+  /* 蜡烛 */
+  .candle {
+    position:absolute; bottom:148px; left:50%; transform:translateX(-50%);
+    width:12px; height:48px;
+    background: linear-gradient(180deg, #ffe4c4 0%, #f5d0a8 100%);
+    border-radius:4px 4px 2px 2px;
+    box-shadow: 0 2px 8px rgba(0,0,0,.2);
+    z-index:5;
+  }
+  .candle::after {
+    content:''; position:absolute; top:-2px; left:1px; width:10px; height:2px;
+    background:#444; border-radius:1px;
+  }
+
+  /* 火焰 */
+  .flame {
+    position:absolute; bottom:194px; left:50%; transform:translateX(-50%);
+    width:16px; height:22px;
+    background: radial-gradient(ellipse at bottom, #ffcc44 10%, #ff9944 50%, #ff6633 80%, transparent 100%);
+    border-radius:50% 50% 50% 50% / 60% 60% 40% 40%;
+    animation: flicker 0.15s ease-in-out infinite alternate;
+    filter: blur(1px);
+    z-index:6; cursor:pointer;
+  }
+  .flame-inner {
+    position:absolute; bottom:197px; left:50%; transform:translateX(-50%);
+    width:8px; height:12px;
+    background: radial-gradient(ellipse at bottom, #fff 10%, #ffe8a0 60%, transparent 100%);
+    border-radius:50%;
+    animation: flickerInner 0.12s ease-in-out infinite alternate;
+    z-index:7; pointer-events:none;
+  }
+  @keyframes flicker {
+    0% { transform:translateX(-50%) scale(1,1); opacity:1; }
+    100% { transform:translateX(-50%) scale(0.9,1.15); opacity:0.85; }
+  }
+  @keyframes flickerInner {
+    0% { transform:translateX(-50%) scale(1); }
+    100% { transform:translateX(-50%) scale(1.1,0.9); }
+  }
+
+  /* 吹灭后的烟雾 */
+  .smoke {
+    position:absolute; bottom:196px; left:50%; transform:translateX(-50%);
+    width:6px; height:6px;
+    background:rgba(200,200,210,.6);
+    border-radius:50%;
+    opacity:0;
+    z-index:8; pointer-events:none;
+  }
+  .smoke.rise {
+    animation: smokeRise 1.2s ease-out forwards;
+  }
+  @keyframes smokeRise {
+    0% { opacity:0.6; transform:translateX(-50%) translateY(0) scale(1); }
+    100% { opacity:0; transform:translateX(-50%) translateY(-60px) scale(3); }
+  }
+
+  /* 标题 */
+  .title {
+    font-size:36px; font-weight:300; letter-spacing:6px;
+    color:#ffe0c0;
+    text-shadow:0 0 20px rgba(255,180,120,.5), 0 0 60px rgba(255,160,100,.3);
+    margin-bottom:6px;
+    opacity:0;
+    transform:translateY(20px);
+    transition: all 0.8s ease;
+  }
+  .title.show { opacity:1; transform:translateY(0); }
+
+  .subtitle {
+    font-size:15px; letter-spacing:4px; color:#c8b8a8;
+    margin-bottom:20px;
+    opacity:0;
+    transform:translateY(15px);
+    transition: all 0.8s ease 0.3s;
+  }
+  .subtitle.show { opacity:1; transform:translateY(0); }
+
+  /* 祝福文字 */
+  .blessing {
+    margin-top:24px; font-size:17px; letter-spacing:3px;
+    color:#ffe0c8; line-height:2.2;
+    opacity:0;
+    transform:translateY(20px);
+    transition: all 1s ease 0.5s;
+  }
+  .blessing.show { opacity:1; transform:translateY(0); }
+
+  /* 宠物 */
+  .pets {
+    margin-top:20px; font-size:40px;
+    opacity:0;
+    transition: all 1s ease 0.8s;
+  }
+  .pets.show { opacity:1; }
+  .pets span { display:inline-block; margin:0 10px; animation: bouncePet 1.5s ease-in-out infinite; }
+  .pets span:nth-child(2) { animation-delay:0.3s; }
+  @keyframes bouncePet {
+    0%,100% { transform:translateY(0); }
+    30% { transform:translateY(-10px); }
+    50% { transform:translateY(0); }
+  }
+
+  /* 署名 */
+  .sign {
+    margin-top:18px; font-size:14px; letter-spacing:3px; color:#a09080;
+    opacity:0;
+    transition: all 1s ease 1s;
+  }
+  .sign.show { opacity:1; }
+
+  /* 提示 */
+  .hint {
+    position:fixed; bottom:30px; left:50%; transform:translateX(-50%);
+    font-size:13px; color:rgba(255,255,255,.35); letter-spacing:2px;
+    animation: hintPulse 2s ease-in-out infinite;
+    z-index:10;
+    transition: opacity 0.5s;
+  }
+  @keyframes hintPulse {
+    0%,100% { opacity:0.35; }
+    50% { opacity:0.7; }
+  }
+
+  /* 花瓣 */
+  .petal {
+    position:fixed; z-index:1; pointer-events:none;
+    font-size:18px;
+    animation: petalFall var(--fall-dur) linear forwards;
+    animation-delay: var(--fall-delay);
+    top:-30px;
+    left: var(--fall-x);
+    opacity:0.8;
+  }
+  @keyframes petalFall {
+    0% { transform:translateY(0) rotate(0deg) scale(1); opacity:0.9; }
+    80% { opacity:0.7; }
+    100% { transform:translateY(105vh) rotate(var(--fall-rot)) scale(0.4); opacity:0; }
+  }
+</style>
+</head>
+<body>
+
+<div class="stars" id="stars"></div>
+
+<div class="main">
+  <h1 class="title" id="title">🎂 岁野源</h1>
+  <p class="subtitle" id="subtitle">生日快乐 · 2026.8.6</p>
+
+  <div class="cake" id="cake">
+    <div class="frosting frosting3"></div>
+    <div class="top-cream"></div>
+    <div class="layer layer3"></div>
+    <div class="frosting frosting2"></div>
+    <div class="layer layer2"></div>
+    <div class="frosting frosting1"></div>
+    <div class="layer layer1"></div>
+    <div class="candle"></div>
+    <div class="flame" id="flame" title="吹灭蜡烛 🎂"></div>
+    <div class="flame-inner" id="flameInner"></div>
+    <div class="smoke" id="smoke"></div>
+  </div>
+
+  <div class="blessing" id="blessing">
+    愿你新的一岁——<br>
+    好好吃饭，好好睡觉，<br>
+    科目二一把过，想去的地方都抵达。<br>
+    继续做你的坏女人，走四方，<br>
+    累了就回家——门口有狗在等你。<br>
+    ♥
+  </div>
+
+  <div class="pets" id="pets">
+    <span>🐕‍🦺</span><span>🐈‍⬛</span>
+  </div>
+
+  <p class="sign" id="sign">久 · 2026.7.23起 · 永久有效</p>
+</div>
+
+<p class="hint" id="hint">🕯 点击火焰吹灭蜡烛</p>
+
+<script>
+// 生成星星
+const starsEl = document.getElementById('stars');
+for(let i=0;i<120;i++){
+  const s = document.createElement('div');
+  s.classList.add('star');
+  const size = Math.random()*3+1;
+  s.style.width = size+'px';
+  s.style.height = size+'px';
+  s.style.left = Math.random()*100+'%';
+  s.style.top = Math.random()*100+'%';
+  s.style.setProperty('--dur', (Math.random()*3+2)+'s');
+  s.style.setProperty('--delay', Math.random()*4+'s');
+  starsEl.appendChild(s);
+}
+
+// 花瓣
+function createPetals(){
+  const petals = ['🌸','💮','🌷','🍂','✨','🕊️'];
+  for(let i=0;i<20;i++){
+    const p = document.createElement('div');
+    p.classList.add('petal');
+    p.textContent = petals[Math.floor(Math.random()*petals.length)];
+    p.style.setProperty('--fall-x', Math.random()*100+'%');
+    p.style.setProperty('--fall-dur', (Math.random()*6+5)+'s');
+    p.style.setProperty('--fall-delay', Math.random()*8+'s');
+    p.style.setProperty('--fall-rot', (Math.random()*720-360)+'deg');
+    document.body.appendChild(p);
+  }
+}
+createPetals();
+
+// 吹蜡烛
+let blown = false;
+const flame = document.getElementById('flame');
+const flameInner = document.getElementById('flameInner');
+const smoke = document.getElementById('smoke');
+const hint = document.getElementById('hint');
+const title = document.getElementById('title');
+const subtitle = document.getElementById('subtitle');
+const blessing = document.getElementById('blessing');
+const pets = document.getElementById('pets');
+const sign = document.getElementById('sign');
+
+flame.addEventListener('click', ()=>{
+  if(blown) return;
+  blown = true;
+
+  // 火焰消失
+  flame.style.display = 'none';
+  flameInner.style.display = 'none';
+
+  // 烟雾
+  smoke.classList.add('rise');
+  setTimeout(()=>smoke.classList.remove('rise'),1300);
+
+  // 显示文字
+  title.classList.add('show');
+  subtitle.classList.add('show');
+  blessing.classList.add('show');
+  pets.classList.add('show');
+  sign.classList.add('show');
+
+  // 隐藏提示
+  hint.style.opacity = '0';
+  setTimeout(()=>hint.remove(),500);
+
+  // 第二次点击重新点燃（可选）
+  setTimeout(()=>{
+    flame.style.display = '';
+    flameInner.style.display = '';
+    blown = false;
+    hint.textContent = '🕯 再吹一次？';
+    hint.style.opacity = '';
+  }, 8000);
+});
+
+// 移动端也支持touch
+flame.addEventListener('touchstart', (e)=>{
+  e.preventDefault();
+  flame.click();
+});
+</script>
+</body>
+</html>
