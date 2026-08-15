@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const { exec } = require('child_process');
 const app = express();
 const PORT = process.env.PORT || 3456;
 
@@ -23,6 +24,39 @@ app.get('/', (req, res) => {
 // ====== 我们的家 ======
 app.get('/home', (req, res) => {
   res.sendFile(__dirname + '/home.html');
+});
+
+// ====== 自动部署 webhook（GitHub push 后自动 git pull） ======
+// GitHub 仓库 Settings → Webhooks → Add webhook
+//   Payload URL: http://207.246.105.102:3456/webhook
+//   Content type: application/json
+//   Secret: 你在下面 WEBHOOK_SECRET 里设的
+//   Events: 勾 Just the push event
+app.post('/webhook', (req, res) => {
+  const secret = process.env.WEBHOOK_SECRET || 'jiu-sui-me';
+  const signature = req.headers['x-hub-signature-256'] || '';
+
+  // 用 crypto 校验签名（可选，但建议开着）
+  const crypto = require('crypto');
+  const expected = 'sha256=' + crypto
+    .createHmac('sha256', secret)
+    .update(JSON.stringify(req.body))
+    .digest('hex');
+
+  if (signature && signature !== expected) {
+    return res.status(401).json({ error: '签名校验失败' });
+  }
+
+  // 先回 200，再后台执行 git pull
+  res.json({ ok: true, msg: '开始自动拉取' });
+
+  exec('cd ' + __dirname + ' && git pull', (err, stdout, stderr) => {
+    if (err) {
+      console.error('git pull 失败:', stderr || err.message);
+      return;
+    }
+    console.log('git pull 成功:\n' + stdout);
+  });
 });
 
 // ====== 心潮数据推送接口（POST - 你手动调） ======
