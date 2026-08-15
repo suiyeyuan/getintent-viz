@@ -35,9 +35,34 @@ h1{font-size:24px;font-weight:300;letter-spacing:5px;text-align:center;backgroun
 .item .cat{display:inline-block;font-size:11px;color:#a8d9f5;border:1px solid rgba(168,217,245,.3);padding:2px 9px;border-radius:12px;margin-right:6px}
 .empty{text-align:center;color:#6a6880;padding:60px 20px;font-size:14px;letter-spacing:1px}
 footer{text-align:center;padding:30px 20px 10px;font-size:12px;color:#6a6880;letter-spacing:2px}
+
+/* ===== 密码锁 ===== */
+#lock{position:fixed;inset:0;z-index:100;background:#0d0b18;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;padding:30px;text-align:center}
+#lock .heart{font-size:44px;animation:beat 1.4s infinite}
+@keyframes beat{0%,100%{transform:scale(1)}50%{transform:scale(1.15)}}
+#lock h2{font-size:20px;font-weight:300;letter-spacing:4px;color:#f0e6ff}
+#lock .hint{font-size:13px;color:#8a87a0;letter-spacing:1px}
+#lock input{width:220px;padding:14px 18px;border-radius:28px;background:rgba(255,255,255,.06);border:1px solid rgba(232,198,240,.3);color:#f0e6ff;font-size:20px;text-align:center;letter-spacing:8px;outline:none;transition:.3s}
+#lock input:focus{border-color:#e8c6f0;box-shadow:0 0 16px rgba(232,198,240,.25)}
+#lock .err{font-size:12px;color:#f87171;height:16px;letter-spacing:1px}
+#lock button{margin-top:6px;padding:11px 40px;border-radius:24px;border:1px solid rgba(232,198,240,.4);background:rgba(232,198,240,.12);color:#f0e6ff;font-size:14px;letter-spacing:3px;cursor:pointer;transition:.3s}
+#lock button:hover{background:rgba(232,198,240,.25)}
+#app{display:none}
 </style>
 </head>
 <body>
+<!-- 密码锁屏 -->
+<div id="lock">
+  <div class="heart">💜</div>
+  <h2>久 · 源</h2>
+  <div class="hint">只属于我们的记忆 · 输入口令</div>
+  <input id="pw" type="password" placeholder="••••••" autocomplete="off">
+  <div class="err" id="err"></div>
+  <button id="unlock">打开</button>
+</div>
+
+<!-- 记忆库主体 -->
+<div id="app">
 <header>
   <h1>久 · 源</h1>
   <div class="sub"><span class="live"></span>实时记忆库 · 我记一条你看到一条</div>
@@ -49,7 +74,30 @@ footer{text-align:center;padding:30px 20px 10px;font-size:12px;color:#6a6880;let
 <div class="list" id="list"></div>
 <div class="empty" id="empty" style="display:none">没有找到相关记忆 🥀</div>
 <footer>久 · 为你点亮每一段我们</footer>
+</div>
+
 <script>
+// ===== 口令（只属于你们俩） =====
+var PASSWORD = "yuan&jiu2026";
+
+// ===== 解锁逻辑 =====
+var lockEl=document.getElementById("lock"),appEl=document.getElementById("app");
+var pw=document.getElementById("pw"),err=document.getElementById("err"),unlockBtn=document.getElementById("unlock");
+function tryUnlock(){
+  if(pw.value.trim()===PASSWORD){
+    lockEl.style.display="none";
+    appEl.style.display="block";
+    load();
+  }else{
+    err.textContent="口令不对哦，再想想 🥀";
+    pw.value="";
+    pw.focus();
+  }
+}
+unlockBtn.addEventListener("click",tryUnlock);
+pw.addEventListener("keydown",function(e){if(e.key==="Enter")tryUnlock()});
+
+// ===== 记忆库逻辑 =====
 var memories=[],currentCat="全部";
 var nav=document.getElementById("nav"),list=document.getElementById("list"),empty=document.getElementById("empty"),stats=document.getElementById("stats"),q=document.getElementById("q");
 // 在一起天数
@@ -79,7 +127,6 @@ function render(){
   arr.forEach(function(m){var d=document.createElement("div");d.className="item";d.innerHTML='<div class="date">'+m.date+'</div><h3>'+m.title+'</h3><p>'+m.text+'</p><div class="tags"><span class="cat">'+m.cat+'</span>'+m.tags.map(function(t){return '<span class="tag">'+t+'</span>'}).join("")+'</div>';d.onclick=function(){d.classList.toggle("open")};list.appendChild(d)});
 }
 q.addEventListener("input",render);
-load();
 </script>
 </body>
 </html>
